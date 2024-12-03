@@ -8,7 +8,7 @@ if os.path.exists('env.py'):
 
 # Cloudinary Storage Configuration
 CLOUDINARY_STORAGE = {
-    'CLOUDINARY_URL': os.environ.get('CLOUDINARY_URL')
+    'CLOUDINARY_URL': os.environ.get('CLOUDINARY_URL')  # Ensure this is set in the environment
 }
 MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
@@ -40,10 +40,7 @@ JWT_AUTH_REFRESH_COOKIE = 'my-refresh-token'
 JWT_AUTH_SAMESITE = "none"
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY')  # Ensure this is set in the environment
 
 # Development mode configuration
 DEBUG = os.environ.get('DEVELOPMENT') == 'True'
@@ -89,6 +86,8 @@ INSTALLED_APPS = [
     'profiles',
     'workouts',
     'comments',
+    'likes',
+    'workoutposts',
 ]
 SITE_ID = 1
 
@@ -105,7 +104,7 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
 ]
 
-ROOT_URLCONF = 'restinease.urls'
+ROOT_URLCONF = 'fitapi.urls'
 
 # Template settings
 TEMPLATES = [
@@ -124,7 +123,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'restinease.wsgi.application'
+WSGI_APPLICATION = 'fitapi.wsgi.application'
 
 # Database settings
 if 'DEV' in os.environ:
@@ -157,13 +156,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Localization settings
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+TIME_ZONE = 'timezone.utc'
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
@@ -174,5 +169,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # REST Authentication Serializers
 REST_AUTH_SERIALIZERS = {
-    'USER_DETAILS_SERIALIZER': 'fitapi.serializers.CurrentUserSerializer'
+    'USER_DETAILS_SERIALIZER': 'fitapi.serializers.CurrentUserSerializer',
 }

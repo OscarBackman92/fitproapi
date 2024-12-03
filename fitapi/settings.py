@@ -87,6 +87,7 @@ INSTALLED_APPS = [
 
     # Your custom apps
     'profiles',
+    'workouts',
 ]
 SITE_ID = 1
 

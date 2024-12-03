@@ -1,0 +1,42 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.pdb
+*.log
+*.pot
+*.py~ 
+
+# Virtual Environment
+venv/
+.env/
+.venv/
+venv
+
+# Django
+*.sqlite3
+db.sqlite3
+media/
+static/
+env.py
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Log files
+*.log
+
+# Docker
+*.env
+docker-compose.override.yml

@@ -1,20 +1,24 @@
 from rest_framework import serializers
 from .models import Profile
-from followers.models import Follower
-
+from followers.models import Follower  # Ensure correct import of Follower model
 
 class ProfileSerializer(serializers.ModelSerializer):
+    # Read-only fields
     owner = serializers.ReadOnlyField(source='owner.username')
+    posts_count = serializers.ReadOnlyField()  # Handled in the view (via annotate)
+    followers_count = serializers.ReadOnlyField()  # Handled in the view (via annotate)
+    following_count = serializers.ReadOnlyField()  # Handled in the view (via annotate)
+
+    # Serializer method fields
     is_owner = serializers.SerializerMethodField()
     following_id = serializers.SerializerMethodField()
-    posts_count = serializers.ReadOnlyField()
-    followers_count = serializers.ReadOnlyField()
-    following_count = serializers.ReadOnlyField()
 
+    # Get the current user's ownership status of the profile
     def get_is_owner(self, obj):
         request = self.context['request']
         return request.user == obj.owner
 
+    # Get the ID of the 'Follower' object if the current user follows the profile owner
     def get_following_id(self, obj):
         user = self.context['request'].user
         if user.is_authenticated:

@@ -10,7 +10,7 @@ urlpatterns = [
     path('dj-rest-auth/', include('dj_rest_auth.urls')),
     path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
     path('api/profiles/', include('profiles.urls')),
-    path('api/posts/', include('posts.urls')),
+    path('api/posts/', include('workoutposts.urls')),
     path('api/comments/', include('comments.urls')),
     path('api/likes/', include('likes.urls')),
     path('api/followers/', include('followers.urls')),

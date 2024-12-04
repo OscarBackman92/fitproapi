@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'rest_framework',
     'django_filters',
+    'django_extensions',
     'rest_framework.authtoken',
     'dj_rest_auth',
     'django.contrib.sites',
@@ -160,9 +161,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 # Default primary key field types
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

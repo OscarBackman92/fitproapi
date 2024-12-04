@@ -13,12 +13,11 @@ class FollowerTests(TestCase):
 
     def test_follow_user(self):
         response = self.client.post('/api/followers/followers/', {
-            'follower': self.user1.id,
             'followed': self.user2.id
-        })
+        }, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_unfollow_user(self):
-        follow = Follower.objects.create(follower=self.user1, followed=self.user2)
-        response = self.client.delete(f'/api/followers/followers/{follow.id}/')
+        follower = Follower.objects.create(follower=self.user1, followed=self.user2)
+        response = self.client.delete(f'/api/followers/followers/{follower.id}/')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

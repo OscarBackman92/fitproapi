@@ -1,23 +1,19 @@
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated 
 from .models import Follower
 from .serializers import FollowerSerializer
-from django.contrib.auth.models import User
 
 class FollowerListView(generics.ListCreateAPIView):
-    queryset = Follower.objects.all()
     serializer_class = FollowerSerializer
     permission_classes = [IsAuthenticated]
+    queryset = Follower.objects.all()
 
     def perform_create(self, serializer):
-        serializer.save(follower=self.request.user)
+        followed_id = self.request.data.get('followed')
+        if followed_id:
+            serializer.save(follower=self.request.user)
 
-class UserFollowerListView(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = FollowerSerializer
+class FollowerDetailView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        following = Follower.objects.filter(follower=user)
-        return following
+    queryset = Follower.objects.all()
+    serializer_class = FollowerSerializer

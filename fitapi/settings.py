@@ -40,7 +40,7 @@ JWT_AUTH_REFRESH_COOKIE = 'my-refresh-token'
 JWT_AUTH_SAMESITE = "none"
 
 # Quick-start development settings - unsuitable for production
-SECRET_KEY = os.environ.get('SECRET_KEY')  # Ensure this is set in the environment
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # Development mode configuration
 DEBUG = os.environ.get('DEVELOPMENT') == 'True'
@@ -96,6 +96,7 @@ SITE_ID = 1
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -158,6 +159,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 # Default primary key field types
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

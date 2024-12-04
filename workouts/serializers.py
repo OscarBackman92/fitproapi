@@ -19,7 +19,6 @@ class WorkoutSerializer(serializers.ModelSerializer):
     def get_like_id(self, obj):
         user = self.context['request'].user
         if user.is_authenticated:
-            # Get WorkoutPost for this workout
             post = WorkoutPost.objects.filter(workout=obj).first()
             if post:
                 like = Like.objects.filter(user=user, post=post).first()

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Workout
+from workoutposts.models import WorkoutPost
 from likes.models import Like
 
 class WorkoutSerializer(serializers.ModelSerializer):
@@ -18,8 +19,11 @@ class WorkoutSerializer(serializers.ModelSerializer):
     def get_like_id(self, obj):
         user = self.context['request'].user
         if user.is_authenticated:
-            like = Like.objects.filter(user=user, workout=obj).first()
-            return like.id if like else None
+            # Get WorkoutPost for this workout
+            post = WorkoutPost.objects.filter(workout=obj).first()
+            if post:
+                like = Like.objects.filter(user=user, post=post).first()
+                return like.id if like else None
         return None
 
     class Meta:

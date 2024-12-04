@@ -9,6 +9,8 @@ class WorkoutTests(TestCase):
         self.client = APIClient()
         self.user = User.objects.create_user(username='testuser', password='pass123')
         self.client.force_authenticate(user=self.user)
+        # Clear any existing workouts
+        Workout.objects.all().delete()
         self.workout_data = {
             'title': 'Morning Run',
             'workout_type': 'cardio',
@@ -22,8 +24,8 @@ class WorkoutTests(TestCase):
     def test_list_workouts(self):
         response = self.client.get('/api/workouts/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['title'], 'Morning Run')
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['title'], 'Morning Run')
 
     def test_create_workout(self):
         new_workout = {

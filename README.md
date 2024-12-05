@@ -1,6 +1,7 @@
 # FitproAPI - Social Fitness Tracking API
 
-[View the API](https://fitpro1-bc76e0450a19.herokuapp.com/
+[View the API](https://fitpro1-bc76e0450a19.herokuapp.com/)
+
 [View Frontend Repository](https://github.com/OscarBackman92/FitPro)
 
 ## Table of Contents

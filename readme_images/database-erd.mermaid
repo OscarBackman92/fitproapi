@@ -1,0 +1,64 @@
+erDiagram
+    User ||--|| Profile : has
+    User ||--o{ Workout : creates
+    User ||--o{ WorkoutPost : creates
+    User ||--o{ Like : makes
+    User ||--o{ Comment : writes
+    User ||--o{ Follower : "can be"
+
+    Workout {
+        int id PK
+        string title
+        string workout_type
+        date date_logged
+        int duration
+        string intensity
+        text notes
+        datetime created_at
+        datetime updated_at
+        int owner FK
+    }
+
+    WorkoutPost {
+        int id PK
+        text content
+        datetime created_at
+        int owner FK
+        int workout FK
+    }
+
+    Profile {
+        int id PK
+        string name
+        text content
+        string image
+        datetime created_at
+        datetime updated_at
+        int owner FK
+    }
+
+    Like {
+        int id PK
+        datetime created_at
+        int owner FK
+        int post FK
+    }
+
+    Comment {
+        int id PK
+        text content
+        datetime created_at
+        int user FK
+        int post FK
+    }
+
+    Follower {
+        int id PK
+        datetime created_at
+        int follower FK
+        int followed FK
+    }
+
+    Workout ||--o| WorkoutPost : "shared as"
+    WorkoutPost ||--o{ Like : receives
+    WorkoutPost ||--o{ Comment : has

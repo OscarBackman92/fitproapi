@@ -499,4 +499,6 @@ web: gunicorn fitapi.wsgi
 ## Credits
 
 - Django REST Framework documentation
-- Stack Overflow community
+- Stack Overflow community+
+- Slack Sweden
+- Daisy Mentor

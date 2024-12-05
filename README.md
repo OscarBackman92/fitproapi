@@ -366,6 +366,7 @@ python manage.py test
 ### Validation
 
 <details>
+
 <summary>PEP8 Validation</summary>
 ![fitpro](/readme_images/view_fitpro.png)
 
@@ -478,7 +479,7 @@ web: gunicorn fitapi.wsgi
 
 ### Languages
 
-- Python 3.11+
+- Python 3.12
 
 ### Development Tools
 
@@ -503,3 +504,4 @@ web: gunicorn fitapi.wsgi
 - Stack Overflow community+
 - Slack Sweden
 - Daisy Mentor
+- Jörgen_lead from the swedish slack channel

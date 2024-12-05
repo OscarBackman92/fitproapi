@@ -19,12 +19,12 @@ class WorkoutList(generics.ListCreateAPIView):
     filterset_fields = [
         'workout_type',
         'intensity',
-        'user__profile',
+        'owner__profile',
     ]
     
     search_fields = [
         'title',
-        'user__username',
+        'owner__username',
         'notes',
     ]
     
@@ -34,7 +34,7 @@ class WorkoutList(generics.ListCreateAPIView):
     ]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        serializer.save(owner=self.request.user)
 
 
 class WorkoutDetail(generics.RetrieveUpdateDestroyAPIView):

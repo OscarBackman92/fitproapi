@@ -193,7 +193,9 @@ DELETE /api/workouts/{id}/
 
 ## Agile Development
 
-Project tracked via GitHub Projects Kanban board: [FitproAPI Board](your-board-link)
+Project tracked via GitHub Projects Kanban board: [FitproAPI Board](https://github.com/users/OscarBackman92/projects/11/views/1)
+
+![kanban](/readme_images/kanban_fitness.png)
 
 Categories:
 

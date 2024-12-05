@@ -3,6 +3,7 @@ from fitapi.permissions import IsOwnerOrReadOnly
 from .models import Like
 from .serializers import LikeSerializer
 
+
 class LikeList(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = LikeSerializer

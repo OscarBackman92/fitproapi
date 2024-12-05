@@ -4,13 +4,16 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from .models import Workout
 
+
 class WorkoutTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
-        self.other_user = User.objects.create_user(username='otheruser', password='testpass123')
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass123')
+        self.other_user = User.objects.create_user(
+            username='otheruser', password='testpass123')
         self.client.force_authenticate(user=self.user)
-        
+
         self.workout_data = {
             'title': 'Morning Run',
             'workout_type': 'cardio',
@@ -19,8 +22,9 @@ class WorkoutTests(TestCase):
             'notes': '5k run',
             'date_logged': '2024-03-14'
         }
-        
-        self.workout = Workout.objects.create(owner=self.user, **self.workout_data)
+
+        self.workout = Workout.objects.create(
+            owner=self.user, **self.workout_data)
 
     def test_create_workout(self):
         response = self.client.post('/api/workouts/', self.workout_data)

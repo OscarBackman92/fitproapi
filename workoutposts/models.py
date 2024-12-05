@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from workouts.models import Workout
 
+
 class WorkoutPost(models.Model):
     owner = models.ForeignKey(
         User,

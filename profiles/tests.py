@@ -4,10 +4,12 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from .models import Profile
 
+
 class ProfileTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass123')
         self.client.force_authenticate(user=self.user)
         self.profile = Profile.objects.get(owner=self.user)
 

@@ -5,6 +5,7 @@ from fitapi.permissions import IsOwnerOrReadOnly
 from .models import Profile
 from .serializers import ProfileSerializer
 
+
 class ProfileList(generics.ListAPIView):
     queryset = Profile.objects.annotate(
         posts_count=Count('owner__workout_posts', distinct=True),

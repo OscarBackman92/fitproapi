@@ -4,11 +4,14 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from .models import Follower
 
+
 class FollowerTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
-        self.user_to_follow = User.objects.create_user(username='followuser', password='testpass123')
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass123')
+        self.user_to_follow = User.objects.create_user(
+            username='followuser', password='testpass123')
         self.client.force_authenticate(user=self.user)
 
     def test_follow_user(self):
@@ -22,5 +25,6 @@ class FollowerTests(TestCase):
             follower=self.user,
             followed=self.user_to_follow
         )
-        response = self.client.delete(f'/api/followers/followers/{follower.id}/')
+        response = self.client.delete(
+            f'/api/followers/followers/{follower.id}/')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

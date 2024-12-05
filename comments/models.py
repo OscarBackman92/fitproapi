@@ -2,9 +2,12 @@ from django.db import models
 from django.contrib.auth.models import User
 from workoutposts.models import WorkoutPost
 
+
 class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
-    post = models.ForeignKey(WorkoutPost, on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="comments")
+    post = models.ForeignKey(
+        WorkoutPost, on_delete=models.CASCADE, related_name="comments")
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 

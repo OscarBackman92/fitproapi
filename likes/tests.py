@@ -6,12 +6,14 @@ from workoutposts.models import WorkoutPost
 from workouts.models import Workout
 from .models import Like
 
+
 class LikeTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass123')
         self.client.force_authenticate(user=self.user)
-        
+
         self.workout = Workout.objects.create(
             owner=self.user,
             title='Test Workout',
@@ -19,7 +21,7 @@ class LikeTests(TestCase):
             duration=30,
             intensity='moderate'
         )
-        
+
         self.post = WorkoutPost.objects.create(
             owner=self.user,
             workout=self.workout,
@@ -31,4 +33,5 @@ class LikeTests(TestCase):
             'post': self.post.id
         })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(Like.objects.filter(owner=self.user, post=self.post).exists())
+        self.assertTrue(
+            )

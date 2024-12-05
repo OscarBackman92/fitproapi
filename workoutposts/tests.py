@@ -5,12 +5,14 @@ from rest_framework import status
 from workouts.models import Workout
 from .models import WorkoutPost
 
+
 class WorkoutPostTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass123')
         self.client.force_authenticate(user=self.user)
-        
+
         self.workout = Workout.objects.create(
             owner=self.user,
             title='Test Workout',
@@ -18,7 +20,7 @@ class WorkoutPostTests(TestCase):
             duration=30,
             intensity='moderate'
         )
-        
+
         self.post = WorkoutPost.objects.create(
             owner=self.user,
             workout=self.workout,

@@ -3,6 +3,7 @@ from .models import Comment
 from .serializers import CommentSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+
 class CommentList(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]

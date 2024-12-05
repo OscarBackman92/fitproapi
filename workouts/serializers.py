@@ -3,6 +3,7 @@ from .models import Workout
 from workoutposts.models import WorkoutPost
 from likes.models import Like
 
+
 class WorkoutSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     is_owner = serializers.SerializerMethodField()

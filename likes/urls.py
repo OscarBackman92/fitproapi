@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import LikeList
+from likes import views
 
 urlpatterns = [
-    path('likes/', LikeList.as_view(), name='like-list'),
+    path('likes/', views.LikeList.as_view(), name='like-list'),
 ]

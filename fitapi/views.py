@@ -5,13 +5,13 @@ from .settings import (
     JWT_AUTH_SECURE,
 )
 
-
 @api_view()
 def root_route(request):
     return Response({
-        "message": "Welcome to my drf API!"
+        "message": "Welcome to Fitness API",
+        "status": "connected",
+        "version": "1.0"
     })
-
 
 @api_view(['POST'])
 def logout_route(request):

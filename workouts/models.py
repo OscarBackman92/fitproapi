@@ -1,12 +1,9 @@
-# workouts/models.py
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Workout(models.Model):
-    """Model to represent a workout."""
-
     CARDIO = 'cardio'
     STRENGTH = 'strength'
     FLEXIBILITY = 'flexibility'
@@ -31,16 +28,11 @@ class Workout(models.Model):
         (HIGH, 'High'),
     ]
 
-    title = models.CharField(
-        max_length=200,
-        default="My Workout",
-        help_text="Title of the workout"
-    )
-    user = models.ForeignKey(
+    title = models.CharField(max_length=200)
+    owner = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='workouts',
-        db_index=True
+        related_name='workouts'
     )
     workout_type = models.CharField(
         max_length=100,
@@ -55,21 +47,18 @@ class Workout(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(1440)],
         help_text="Duration in minutes"
     )
-    notes = models.TextField(
-        blank=True,
-        help_text="Additional notes about the workout"
-    )
+    notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     intensity = models.CharField(
         max_length=20,
         choices=INTENSITY_LEVELS,
-        default=MODERATE,
-        db_index=True
+        default=MODERATE
     )
-
-    def __str__(self):
-        return f'{self.title} - {self.get_workout_type_display()}'
+    is_published = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-date_logged']
+
+    def __str__(self):
+        return f"{self.owner}'s {self.title}"

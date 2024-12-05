@@ -364,7 +364,65 @@ python manage.py test
 
 ### Validation
 
-- PEP8 compliance
+<details>
+<summary>PEP8 Validation</summary>
+![fitpro](/readme_images/view_fitpro.png)
+
+![fitpro](/readme_images/fitpro_urls.png)
+
+![fitpro](/readme_images/serializer_fitpro.png)
+
+![fitpro](/readme_images/followers_models.png)
+
+![fitpro](/readme_images/followers_serializer.png)
+
+![fitpro](/readme_images/followers_test.png)
+
+![fitpro](/readme_images/followers_urls.png)
+
+![fitpro](/readme_images/followers_view.png)
+
+![fitpro](/readme_images/like_models.png)
+
+![fitpro](/readme_images/likes_serializer.png)
+
+![fitpro](/readme_images/likes_test.png)
+
+![fitpro](/readme_images/likes_views.png)
+
+![fitpro](/readme_images/likes_urls.png)
+
+![fitpro](/readme_images/post_model.png)
+
+![fitpro](/readme_images/post_serializer.png)
+
+![fitpro](/readme_images/post_test.png)
+
+![fitpro](/readme_images/post_urls.png)
+
+![fitpro](/readme_images/post_view.png)
+
+![fitpro](/readme_images//workout_model.png)
+
+![fitpro](/readme_images/workout_serializer.png)
+
+![fitpro](/readme_images/workout_test.png)
+
+![fitpro](/readme_images/workout_urls.png)
+
+![fitpro](/readme_images/workout_view.png)
+
+![fitpro](/readme_images/profile_model.png)
+
+![fitpro](/readme_images/profile_test.png)
+
+![fitpro](/readme_images/profile_urls.png)
+
+![fitpro](/readme_images/profile_view.png)
+
+![fitpro](/readme_images/profiles_serializer.png)
+
+</details>
 
 ## Set Up and Deployment
 

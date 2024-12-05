@@ -8,7 +8,7 @@ from .serializers import WorkoutSerializer
 class WorkoutList(generics.ListCreateAPIView):
     serializer_class = WorkoutSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    queryset = Workout.objects.all().order_by('-date_logged')
+    queryset = Workout.objects.all()
     
     filter_backends = [
         filters.OrderingFilter,

@@ -1,7 +1,12 @@
-from rest_framework import generics
+from rest_framework import generics, permissions
+from fitapi.permissions import IsOwnerOrReadOnly
 from .models import Like
 from .serializers import LikeSerializer
 
 class LikeList(generics.ListCreateAPIView):
-    queryset = Like.objects.all()
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = LikeSerializer
+    queryset = Like.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)

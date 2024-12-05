@@ -8,11 +8,8 @@ class WorkoutPostSerializer(serializers.ModelSerializer):
     profile_id = serializers.ReadOnlyField(source='owner.profile.id')
     profile_image = serializers.ReadOnlyField(source='owner.profile.image.url')
     like_id = serializers.SerializerMethodField()
-    likes_count = serializers.IntegerField(read_only=True)
-    comments_count = serializers.IntegerField(read_only=True)
-    workout_type = serializers.ReadOnlyField(source='workout.workout_type')
-    workout_duration = serializers.ReadOnlyField(source='workout.duration')
-    workout_intensity = serializers.ReadOnlyField(source='workout.intensity')
+    likes_count = serializers.ReadOnlyField()
+    comments_count = serializers.ReadOnlyField()
 
     def get_is_owner(self, obj):
         request = self.context['request']
@@ -22,7 +19,8 @@ class WorkoutPostSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         if user.is_authenticated:
             like = Like.objects.filter(
-                user=user, post=obj
+                owner=user,
+                post=obj
             ).first()
             return like.id if like else None
         return None
@@ -32,7 +30,6 @@ class WorkoutPostSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'owner', 'is_owner', 'profile_id',
             'profile_image', 'created_at', 'updated_at',
-            'workout', 'workout_type', 'workout_duration',
-            'workout_intensity', 'content',
-            'like_id', 'likes_count', 'comments_count',
+            'workout', 'content', 'like_id',
+            'likes_count', 'comments_count',
         ]

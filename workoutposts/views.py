@@ -7,13 +7,10 @@ from fitapi.permissions import IsOwnerOrReadOnly
 class WorkoutPostList(generics.ListCreateAPIView):
     serializer_class = WorkoutPostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    
-    def get_queryset(self):
-        queryset = WorkoutPost.objects.annotate(
-            likes_count=Count('likes', distinct=True),
-            comments_count=Count('comments', distinct=True)
-        ).order_by('-created_at')
-        return queryset
+    queryset = WorkoutPost.objects.annotate(
+        likes_count=Count('likes', distinct=True),
+        comments_count=Count('comments', distinct=True)
+    )
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)

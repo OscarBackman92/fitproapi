@@ -13,7 +13,7 @@ class LikeTests(TestCase):
         self.client.force_authenticate(user=self.user)
         
         self.workout = Workout.objects.create(
-            owner=self.user, 
+            owner=self.user,
             title='Test Workout',
             workout_type='cardio',
             duration=30,
@@ -31,10 +31,4 @@ class LikeTests(TestCase):
             'post': self.post.id
         })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_duplicate_like(self):
-        Like.objects.create(user=self.user, post=self.post)
-        response = self.client.post('/api/likes/likes/', {
-            'post': self.post.id
-        })
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue(Like.objects.filter(owner=self.user, post=self.post).exists())

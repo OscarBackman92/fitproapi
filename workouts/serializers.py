@@ -4,10 +4,10 @@ from workoutposts.models import WorkoutPost
 from likes.models import Like
 
 class WorkoutSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='user.username')
+    owner = serializers.ReadOnlyField(source='owner.username')
     is_owner = serializers.SerializerMethodField()
-    profile_id = serializers.ReadOnlyField(source='user.profile.id')
-    profile_image = serializers.ReadOnlyField(source='user.profile.image.url')
+    profile_id = serializers.ReadOnlyField(source='owner.profile.id')
+    profile_image = serializers.ReadOnlyField(source='owner.profile.image.url')
     like_id = serializers.SerializerMethodField()
     likes_count = serializers.IntegerField(read_only=True)
     comments_count = serializers.IntegerField(read_only=True)
@@ -21,7 +21,7 @@ class WorkoutSerializer(serializers.ModelSerializer):
         if user.is_authenticated:
             post = WorkoutPost.objects.filter(workout=obj).first()
             if post:
-                like = Like.objects.filter(user=user, post=post).first()
+                like = Like.objects.filter(owner=user, post=post).first()
                 return like.id if like else None
         return None
 
@@ -34,3 +34,4 @@ class WorkoutSerializer(serializers.ModelSerializer):
             'intensity', 'notes', 'likes_count', 'comments_count',
             'like_id',
         ]
+        read_only_fields = ['owner']

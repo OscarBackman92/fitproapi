@@ -43,11 +43,14 @@ if 'DEV' not in os.environ:
     ]
 
 # JWT Authentication Settings
-REST_USE_JWT = True
-JWT_AUTH_SECURE = True
-JWT_AUTH_COOKIE = 'my-app-auth'
-JWT_AUTH_REFRESH_COOKIE = 'my-refresh-token'
-JWT_AUTH_SAMESITE = "none"
+
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'fitpro-auth',
+    'JWT_AUTH_REFRESH_COOKIE': 'fitpro-refresh',
+    'JWT_AUTH_SAMESITE': 'None',
+    'JWT_AUTH_SECURE': True,
+}
 
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = os.environ.get('SECRET_KEY')
@@ -63,8 +66,8 @@ ALLOWED_HOSTS = [
 
 # CORS Configuration
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'https://frontendfitness-e0476c66fecb.herokuapp.com'
+    "http://localhost:3000",
+    "https://frontendfitness-e0476c66fecb.herokuapp.com"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -93,6 +96,7 @@ CORS_ALLOW_HEADERS = [
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -208,13 +212,6 @@ REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'fitapi.serializers.CurrentUserSerializer',
 }
 
-REST_AUTH = {
-    'USE_JWT': True,
-    'JWT_AUTH_COOKIE': 'my-app-auth',
-    'JWT_AUTH_REFRESH_COOKIE': 'my-refresh-token',
-    'JWT_AUTH_SAMESITE': 'None',
-    'JWT_AUTH_SECURE': True,
-}
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_EMAIL_REQUIRED = False

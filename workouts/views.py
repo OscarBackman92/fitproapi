@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from .models import Workout
 from .serializers import WorkoutSerializer
 from fitapi.permissions import IsOwnerOrReadOnly
-from fitapi import logger
+import logging
 
 class WorkoutList(generics.ListCreateAPIView):
     serializer_class = WorkoutSerializer

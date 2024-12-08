@@ -17,8 +17,12 @@ class WorkoutList(generics.ListCreateAPIView):
         
         if owner is not None:
             queryset = queryset.filter(owner_id=owner)
-        
-        # Add any additional filters
+        else:
+            if self.request.user.is_authenticated:
+                queryset = queryset.filter(owner=self.request.user)
+            else:
+                queryset = queryset.none()
+
         workout_type = self.request.query_params.get('workout_type', None)
         if workout_type:
             queryset = queryset.filter(workout_type=workout_type)

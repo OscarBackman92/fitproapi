@@ -43,12 +43,12 @@ class WorkoutDetail(generics.RetrieveUpdateDestroyAPIView):
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
-def workout_statistics(request, user_id):
+def workout_statistics(request):
     """
-    Get workout statistics for a specific user
+    Get workout statistics for the authenticated user
     """
     try:
-        workouts = Workout.objects.filter(owner_id=user_id)
+        workouts = Workout.objects.filter(owner=request.user)
         
         # Calculate basic stats
         total_workouts = workouts.count()
@@ -59,6 +59,7 @@ def workout_statistics(request, user_id):
         workouts_this_week = workouts.filter(date_logged__gte=week_start).count()
         
         # Calculate streak
+        streak = 0
         if total_workouts > 0:
             dates = workouts.values_list('date_logged', flat=True).order_by('-date_logged')
             current_date = dates[0]
@@ -70,8 +71,6 @@ def workout_statistics(request, user_id):
                     current_date = date
                 else:
                     break
-        else:
-            streak = 0
             
         # Get workout types distribution
         workout_types = workouts.values('workout_type').annotate(

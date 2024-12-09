@@ -12,4 +12,7 @@ urlpatterns = [
     path('likes/', include('likes.urls')),
     path('comments/', include('comments.urls')),
     path('followers/', include('followers.urls')),
+    
+    path('dj-rest-auth/', include('dj_rest_auth.urls')),
+    path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
 ]

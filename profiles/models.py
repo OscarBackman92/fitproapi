@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
 class Profile(models.Model):
-    # One-to-One relationship with User model - links profile to user ID
+    id = models.AutoField(primary_key=True)
     owner = models.OneToOneField(
         User, 
         on_delete=models.CASCADE,
@@ -22,9 +22,8 @@ class Profile(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.owner}'s profile"
+        return f"{self.owner}'s profile (ID: {self.id})"
 
-# Signal to automatically create profile when user is created
 def create_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(owner=instance)

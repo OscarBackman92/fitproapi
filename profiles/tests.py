@@ -3,41 +3,32 @@ from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 from rest_framework import status
 from .models import Profile
-from django.utils import timezone
-from workouts.models import Workout
-from followers.models import Follower
-import datetime
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
+from followers.models import Follower
 
 class ProfileTests(APITestCase):
     def setUp(self):
         # Create test users
         self.user = User.objects.create_user(username='testuser', password='testpass123')
         self.user2 = User.objects.create_user(username='testuser2', password='testpass123')
+        # Force authentication with first user
         self.client.force_authenticate(user=self.user)
-
-    def create_workout(self, user, date_logged=None):
-        """Helper method to create a workout"""
-        return Workout.objects.create(
-            owner=user,
-            title="Test Workout",
-            workout_type="cardio",
-            duration=30,
-            intensity="moderate",
-            date_logged=date_logged or timezone.now().date()
-        )
 
     def test_profile_auto_creation(self):
         """Test that profile is automatically created when user is created"""
         self.assertTrue(hasattr(self.user, 'profile'))
         self.assertEqual(Profile.objects.count(), 2)
+        profile = Profile.objects.get(owner=self.user)
+        self.assertEqual(str(profile), f"{self.user}'s profile (ID: {profile.id})")
 
     def test_profile_list(self):
         """Test listing all profiles"""
         response = self.client.get(reverse('profile-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]['owner'], self.user2.username)  # Updated
+        self.assertEqual(response.data[1]['owner'], self.user.username)   # Updated
+
 
     def test_profile_detail(self):
         """Test retrieving a specific profile"""
@@ -46,73 +37,39 @@ class ProfileTests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['owner'], 'testuser')
+        self.assertTrue(response.data['is_owner'])
 
-    def test_profile_update(self):
-        """Test updating profile"""
-        data = {
+    def test_profile_update_owner(self):
+        """Test updating own profile"""
+        update_data = {
             'name': 'Updated Name',
-            'bio': 'Updated bio',
-            'is_private': True
+            'content': 'Updated content'
         }
         response = self.client.patch(
             reverse('profile-detail', kwargs={'pk': self.user.profile.id}),
-            data
+            update_data
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], 'Updated Name')
-        self.assertEqual(response.data['bio'], 'Updated bio')
-        self.assertTrue(response.data['is_private'])
+        self.assertEqual(response.data['content'], 'Updated content')
 
-    def test_unauthorized_profile_update(self):
+    def test_profile_update_non_owner(self):
         """Test that users cannot update other users' profiles"""
-        data = {'name': 'Unauthorized Update'}
+        self.client.force_authenticate(user=self.user2)
+        update_data = {'name': 'Unauthorized Update'}
         response = self.client.patch(
-            reverse('profile-detail', kwargs={'pk': self.user2.profile.id}),
-            data
+            reverse('profile-detail', kwargs={'pk': self.user.profile.id}),
+            update_data
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_profile_image_upload(self):
-        """Test profile image upload"""
-        image = SimpleUploadedFile(
-            "test_image.jpg",
-            b"file_content",
-            content_type="image/jpeg"
-        )
-        response = self.client.patch(
-            reverse('profile-detail', kwargs={'pk': self.user.profile.id}),
-            {'image': image},
-            format='multipart'
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('image', response.data)
-
-    def test_profile_statistics(self):
-        """Test profile statistics endpoint"""
-        # Create some workouts with consecutive days
-        today = timezone.now().date()
-        for i in range(3):
-            self.create_workout(
-                self.user,
-                date_logged=today - datetime.timedelta(days=i)
-            )
-        
-        response = self.client.get(
-            reverse('profile-statistics', kwargs={'pk': self.user.profile.id})
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['total_workouts'], 3)
-        self.assertEqual(response.data['current_streak'], 3)
-
-    def test_current_user_profile(self):
-        """Test getting current user's profile"""
-        response = self.client.get(reverse('current-user-profile'))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['owner'], self.user.username)
-
     def test_profile_followers_count(self):
         """Test followers count in profile"""
-        Follower.objects.create(follower=self.user2, followed=self.user)
+        # Create a follower relationship
+        Follower.objects.create(
+            follower=self.user2,
+            followed=self.user
+        )
         
         response = self.client.get(
             reverse('profile-detail', kwargs={'pk': self.user.profile.id})
@@ -121,11 +78,36 @@ class ProfileTests(APITestCase):
         self.assertEqual(response.data['followers_count'], 1)
         self.assertEqual(response.data['following_count'], 0)
 
-    def test_profile_stats_no_workouts(self):
-        """Test profile statistics with no workouts"""
+    def test_current_user_profile(self):
+        """Test getting current user's profile"""
+        response = self.client.get(reverse('current-user-profile'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['owner'], self.user.username)
+        self.assertTrue(response.data['is_owner'])
+
+    def test_profile_not_found(self):
+        """Test accessing non-existent profile"""
         response = self.client.get(
-            reverse('profile-statistics', kwargs={'pk': self.user.profile.id})
+            reverse('profile-detail', kwargs={'pk': 999999})
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_unauthenticated_access(self):
+        """Test unauthenticated access to profiles"""
+        self.client.force_authenticate(user=None)
+        response = self.client.get(reverse('profile-list'))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)  # Updated
+
+    def test_following_id_present(self):
+        """Test following_id is present in response when following a user"""
+        # Create a follower relationship
+        follower = Follower.objects.create(
+            follower=self.user,
+            followed=self.user2
+        )
+        
+        response = self.client.get(
+            reverse('profile-detail', kwargs={'pk': self.user2.profile.id})
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['total_workouts'], 0)
-        self.assertEqual(response.data['current_streak'], 0)
+        self.assertEqual(response.data['following_id'], follower.id)

@@ -13,7 +13,7 @@ class Profile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     name = models.CharField(max_length=255, blank=True, null=True)
-    bio = models.TextField(blank=True)
+    content = models.TextField(blank=True, null=True)
     image = models.ImageField(
         upload_to='images/', 
         default='images/default_profile_ylwpgw.png'

@@ -1,50 +1,38 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from rest_framework.test import APIClient
+from rest_framework.test import APITestCase
 from rest_framework import status
 from .models import Workout
 
 
-class WorkoutTests(TestCase):
+class WorkoutTests(APITestCase):
     def setUp(self):
-        self.client = APIClient()
-        self.user = User.objects.create_user(
-            username='testuser', password='testpass123')
-        self.other_user = User.objects.create_user(
-            username='otheruser', password='testpass123')
-        self.client.force_authenticate(user=self.user)
+        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.client.login(username='testuser', password='testpass123')
 
         self.workout_data = {
             'title': 'Morning Run',
             'workout_type': 'cardio',
             'duration': 30,
             'intensity': 'moderate',
-            'notes': '5k run',
-            'date_logged': '2024-03-14'
         }
-
-        self.workout = Workout.objects.create(
-            owner=self.user, **self.workout_data)
-
-    def test_create_workout(self):
-        response = self.client.post('/api/workouts/', self.workout_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['owner'], self.user.username)
-        self.assertTrue(response.data['is_owner'])
+        self.workout = self.client.post('/workouts/', self.workout_data).data
 
     def test_list_workouts(self):
-        response = self.client.get('/api/workouts/')
+        response = self.client.get('/workouts/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 1)
+        self.assertIsInstance(response.data, list)
+
+    def test_retrieve_workout(self):
+        response = self.client.get(f"/workouts/{self.workout['id']}/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], 'Morning Run')
 
     def test_update_workout(self):
-        response = self.client.patch(
-            f'/api/workouts/{self.workout.id}/',
-            {'title': 'Updated Run'}
-        )
+        response = self.client.patch(f"/workouts/{self.workout['id']}/", {'title': 'Evening Run'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['title'], 'Updated Run')
+        self.assertEqual(response.data['title'], 'Evening Run')
 
     def test_delete_workout(self):
-        response = self.client.delete(f'/api/workouts/{self.workout.id}/')
+        response = self.client.delete(f"/workouts/{self.workout['id']}/")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

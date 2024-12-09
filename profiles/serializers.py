@@ -18,7 +18,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             following = Follower.objects.filter(
-                owner=request.user, followed=obj.owner
+                follower=request.user, followed=obj.owner
             ).first()
             return following.id if following else None
         return None

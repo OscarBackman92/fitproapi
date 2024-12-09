@@ -36,6 +36,7 @@ JWT_AUTH_SECURE = True
 
 # REST_AUTH settings
 REST_AUTH = {
+    'USER_DETAILS_SERIALIZER': 'fitapi.serializers.CurrentUserSerializer',
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'my-app-auth',
     'JWT_AUTH_REFRESH_COOKIE': 'my-refresh-token',

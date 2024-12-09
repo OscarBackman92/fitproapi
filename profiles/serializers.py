@@ -11,14 +11,14 @@ class ProfileSerializer(serializers.ModelSerializer):
     following_count = serializers.ReadOnlyField()
 
     def get_is_owner(self, obj):
-        request = self.context['request']
-        return request.user == obj.owner
+        request = self.context.get('request')
+        return request.user == obj.owner if request else False
 
     def get_following_id(self, obj):
-        user = self.context['request'].user
-        if user.is_authenticated:
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
             following = Follower.objects.filter(
-                owner=user, followed=obj.owner
+                owner=request.user, followed=obj.owner
             ).first()
             return following.id if following else None
         return None

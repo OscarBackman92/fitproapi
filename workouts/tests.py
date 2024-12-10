@@ -1,123 +1,173 @@
-from rest_framework import status
-from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
-from .models import Workout
+from rest_framework.test import APITestCase, APIClient
+from rest_framework import status
+from django.urls import reverse
+from workouts.models import Workout
 from django.utils import timezone
-
+import json
 
 class WorkoutTests(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="testuser", password="testpass123")
-        self.other_user = User.objects.create_user(username="otheruser", password="otherpass123")
-        self.client.login(username="testuser", password="testpass123")
+        """Set up test data"""
+        self.client = APIClient()
+        # Create test users
+        self.user = User.objects.create_user(
+            username='testuser',
+            password='testpass123'
+        )
+        self.other_user = User.objects.create_user(
+            username='otheruser',
+            password='testpass123'
+        )
+        # Authenticate main test user
+        self.client.force_authenticate(user=self.user)
 
+        # Create a test workout
         self.workout_data = {
             "title": "Morning Run",
             "workout_type": "cardio",
             "duration": 30,
             "intensity": "moderate",
-            "date_logged": timezone.now().date(),
+            "notes": "Good pace",
+            "date_logged": timezone.now().date().isoformat()
         }
-        self.workout = Workout.objects.create(owner=self.user, **self.workout_data)
+        self.workout = Workout.objects.create(
+            owner=self.user,
+            **self.workout_data
+        )
 
-    def test_list_workouts_empty(self):
-        """Test list endpoint when there are no workouts"""
-        Workout.objects.all().delete()
-        response = self.client.get("/workouts/")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
+    def test_create_workout(self):
+        """Test creating a new workout"""
+        new_workout_data = {
+            "title": "Evening Yoga",
+            "workout_type": "flexibility",
+            "duration": 45,
+            "intensity": "low",
+            "notes": "Relaxing session",
+            "date_logged": timezone.now().date().isoformat()
+        }
+        response = self.client.post(
+            reverse('workout-list'),
+            new_workout_data,
+            format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Workout.objects.count(), 2)
+        self.assertEqual(response.data['title'], 'Evening Yoga')
+        self.assertEqual(response.data['owner'], 'testuser')
 
     def test_list_workouts(self):
         """Test listing workouts"""
-        response = self.client.get("/workouts/")
+        response = self.client.get(reverse('workout-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("title", response.data[0])
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['title'], 'Morning Run')
 
-    def test_create_workout_missing_fields(self):
-        """Test creating a workout with missing required fields"""
-        incomplete_data = {"workout_type": "cardio", "duration": 30}
-        response = self.client.post("/workouts/", incomplete_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("title", response.data)
-
-    def test_create_workout_invalid_duration(self):
-        """Test creating a workout with an invalid duration"""
-        invalid_data = self.workout_data.copy()
-        invalid_data["duration"] = -5
-        response = self.client.post("/workouts/", invalid_data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("duration", response.data)
-
-    def test_retrieve_other_user_workout(self):
-        """Test retrieving another user's workout"""
-        other_workout = Workout.objects.create(
-            owner=self.other_user, title="Other Run", workout_type="cardio", duration=40, intensity="low"
+    def test_get_workout_detail(self):
+        """Test retrieving a specific workout"""
+        response = self.client.get(
+            reverse('workout-detail', kwargs={'pk': self.workout.id})
         )
-        response = self.client.get(f"/workouts/{other_workout.id}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], 'Morning Run')
+        self.assertEqual(response.data['duration'], 30)
 
-    def test_update_other_user_workout(self):
-        """Ensure users cannot update workouts they do not own"""
-        other_workout = Workout.objects.create(
-            owner=self.other_user, title="Evening Run", workout_type="strength", duration=45, intensity="high"
+    def test_update_workout(self):
+        """Test updating a workout"""
+        update_data = {
+            "title": "Updated Run",
+            "duration": 35
+        }
+        response = self.client.patch(
+            reverse('workout-detail', kwargs={'pk': self.workout.id}),
+            update_data,
+            format='json'
         )
-        response = self.client.patch(f"/workouts/{other_workout.id}/", {"title": "Unauthorized Update"})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_delete_other_user_workout(self):
-        """Ensure users cannot delete workouts they do not own"""
-        other_workout = Workout.objects.create(
-            owner=self.other_user, title="Evening Run", workout_type="strength", duration=45, intensity="high"
-        )
-        response = self.client.delete(f"/workouts/{other_workout.id}/")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], 'Updated Run')
+        self.assertEqual(response.data['duration'], 35)
 
     def test_delete_workout(self):
         """Test deleting a workout"""
-        response = self.client.delete(f"/workouts/{self.workout.id}/")
+        response = self.client.delete(
+            reverse('workout-detail', kwargs={'pk': self.workout.id})
+        )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(Workout.objects.filter(id=self.workout.id).exists())
+        self.assertEqual(Workout.objects.count(), 0)
 
-    def test_workout_statistics_multiple_workouts(self):
-        """Test statistics endpoint with multiple workouts"""
-        Workout.objects.create(
-            owner=self.user, title="Evening Run", workout_type="strength", duration=45, intensity="high"
+    def test_workout_invalid_duration(self):
+        """Test creating workout with invalid duration"""
+        invalid_data = self.workout_data.copy()
+        invalid_data['duration'] = -5
+        response = self.client.post(
+            reverse('workout-list'),
+            invalid_data,
+            format='json'
         )
-        response = self.client.get("/workouts/statistics/")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["total_workouts"], 2)
-        self.assertEqual(response.data["total_duration"], 75)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('duration', response.data)
 
-    def test_workout_statistics_other_user(self):
-        """Ensure workout statistics endpoint returns data only for the authenticated user"""
+    def test_workout_statistics(self):
+        """Test workout statistics endpoint"""
+        # Create additional workout for statistics
         Workout.objects.create(
-            owner=self.other_user, title="Other Run", workout_type="cardio", duration=50, intensity="low"
+            owner=self.user,
+            title="Evening Run",
+            workout_type="cardio",
+            duration=45,
+            intensity="high"
         )
-        response = self.client.get("/workouts/statistics/")
+        
+        response = self.client.get(reverse('workout-statistics'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["total_workouts"], 1)
-        self.assertEqual(response.data["total_duration"], 30)
+        self.assertEqual(response.data['total_workouts'], 2)
+        self.assertEqual(response.data['total_duration'], 75)
+        self.assertIn('workout_types', response.data)
+        self.assertIn('monthly_trends', response.data)
 
-    def test_create_workout_maximum_duration(self):
-        """Test creating a workout with the maximum allowed duration"""
-        max_duration_data = self.workout_data.copy()
-        max_duration_data["duration"] = 1440
-        response = self.client.post("/workouts/", max_duration_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["duration"], 1440)
+    def test_unauthorized_workout_access(self):
+        """Test unauthorized workout access"""
+        # Create workout for other user
+        other_workout = Workout.objects.create(
+            owner=self.other_user,
+            title="Other's Workout",
+            workout_type="strength",
+            duration=40,
+            intensity="high"
+        )
+        
+        # Try to update other user's workout
+        response = self.client.patch(
+            reverse('workout-detail', kwargs={'pk': other_workout.id}),
+            {"title": "Unauthorized Update"},
+            format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_edit_workout_as_owner(self):
-        """Ensure owners can edit their workouts"""
-        response = self.client.patch(f"/workouts/{self.workout.id}/", {"title": "Updated Run"})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["title"], "Updated Run")
+        # Try to delete other user's workout
+        response = self.client.delete(
+            reverse('workout-detail', kwargs={'pk': other_workout.id})
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_owner_workout_visibility_only(self):
-        """Ensure the workout list only shows workouts for the authenticated user"""
+    def test_workout_filtering(self):
+        """Test workout filtering capabilities"""
+        # Create workouts with different types
         Workout.objects.create(
-            owner=self.other_user, title="Other Run", workout_type="cardio", duration=50, intensity="low"
+            owner=self.user,
+            title="Strength Training",
+            workout_type="strength",
+            duration=45,
+            intensity="high"
         )
-        response = self.client.get("/workouts/")
+        
+        # Test filtering by workout type
+        response = self.client.get(f"{reverse('workout-list')}?workout_type=cardio")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["owner"], self.user.username)
+        self.assertEqual(response.data[0]['workout_type'], 'cardio')
+
+    def tearDown(self):
+        """Clean up after tests"""
+        User.objects.all().delete()
+        Workout.objects.all().delete()

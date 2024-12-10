@@ -11,8 +11,8 @@ class Profile(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    name = models.CharField(max_length=255, blank=True, null=True)
-    content = models.TextField(blank=True, null=True)
+    name = models.CharField(max_length=255, blank=True)
+    content = models.TextField(blank=True)
     image = models.ImageField(
         upload_to='images/', 
         default='images/default_profile_ylwpgw.png'
@@ -24,9 +24,7 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.owner}'s profile"
 
-    @receiver(post_save, sender=User)
-    def create_profile(sender, instance, created, **kwargs):
-        if created:
-            Profile.objects.create(owner=instance)
-
-    post_save.connect(create_profile, sender=User)
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(owner=instance)

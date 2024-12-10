@@ -54,7 +54,7 @@ def profile_statistics(request, owner):
     stats = {
         'total_workouts': workouts.count(),
         'total_duration': sum(w.duration for w in workouts),
-        'current_streak': 0  # You can implement streak calculation logic here
+        'current_streak': 0
     }
     
     return Response(stats)

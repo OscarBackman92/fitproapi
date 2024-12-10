@@ -4,7 +4,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 class Profile(models.Model):
-    id = models.AutoField(primary_key=True)
     owner = models.OneToOneField(
         User, 
         on_delete=models.CASCADE,

@@ -22,7 +22,7 @@ class Profile(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.owner}'s profile (ID: {self.id})"
+        return f"{self.owner}'s profile"
 
     @receiver(post_save, sender=User)
     def create_profile(sender, instance, created, **kwargs):

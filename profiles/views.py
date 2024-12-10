@@ -7,7 +7,6 @@ from .models import Profile
 from .serializers import ProfileSerializer
 from fitapi.permissions import IsOwnerOrReadOnly
 
-
 class ProfileList(generics.ListAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
@@ -20,11 +19,11 @@ class ProfileList(generics.ListAPIView):
             following_count=Count('owner__following', distinct=True)
         ).order_by('-created_at')
 
-
 class ProfileDetail(generics.RetrieveUpdateAPIView):
+    queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [IsOwnerOrReadOnly]
-    lookup_field = 'owner'  # Use 'owner' as the lookup field instead of 'id'
+    lookup_field = 'owner'
 
     def get_queryset(self):
         return Profile.objects.annotate(
@@ -32,7 +31,6 @@ class ProfileDetail(generics.RetrieveUpdateAPIView):
             followers_count=Count('owner__followers', distinct=True),
             following_count=Count('owner__following', distinct=True)
         )
-
 
 class CurrentUserProfile(generics.RetrieveAPIView):
     serializer_class = ProfileSerializer
@@ -46,18 +44,17 @@ class CurrentUserProfile(generics.RetrieveAPIView):
         )
         return get_object_or_404(queryset, owner=self.request.user)
 
-
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def profile_statistics(request, owner):
     """Get statistics for a specific profile"""
-    profile = get_object_or_404(Profile, owner=owner)  # Lookup by owner
+    profile = get_object_or_404(Profile, owner=owner)
     workouts = profile.owner.workouts.all()
-
+    
     stats = {
         'total_workouts': workouts.count(),
         'total_duration': sum(w.duration for w in workouts),
-        'current_streak': 0  # Implement streak calculation logic here
+        'current_streak': 0  # You can implement streak calculation logic here
     }
-
+    
     return Response(stats)
